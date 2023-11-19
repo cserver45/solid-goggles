@@ -12,18 +12,26 @@ url = "https://manjaro.org/download/"
 page = requests.get(url)
 soup = bs4.BeautifulSoup(page.content, "html.parser")
 # for now, this only gets plasma edition and not any of the others
-link = soup.find(id="of-full-plasma").find_all("a")[1]['href']
+manjaro_offical_isos = ['of-full-plasma', 'of-full-xfce', 'of-full-gnome']
+manjaro_json = {}
+for rel in manjaro_offical_isos:
+    link = soup.find(id=rel).find_all("a")[1]['href']
+    manjaro_json[rel] = link
 
-# later this will add all entries to the file while being run in a for loop
-manjaro_json = {'plasma': link}
 # we wil write the previous value to the file if the file doesn't exist
 # that indicates the script has not run once yet
 # and yes, json files are not the best, but I don't feel like setting up a proper db
 if os.path.isfile('manjaro.json') is False:
-    with open('manjaro.json', 'w', encoding='UTF-8') as f:
-        f.write(json.dump(manjaro_json))
+    with open('manjaro.json', 'w') as f:
+        json.dump(manjaro_json, f)
     manjaro_entries = manjaro_json
 else:
     with open('manjaro.json', 'r') as f:
-        manjaro_entries = json.loads(f.read())
+        manjaro_entries = json.load(f)
 
+if manjaro_json != manjaro_entries:
+    print('update found')
+    # update the file for the next run
+    with open('manjaro.json', 'w') as f:
+        json.dump(manjaro_json, f)
+    # send a message via rss (todo)
