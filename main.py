@@ -13,10 +13,15 @@ import xmltodict
 def send_rss(latest: dict, old: dict):
     """Add the entry to the rss file."""
 
-    items_updated = []
+    if os.path.isfile('feed.rss') is False:
+        shutil.copy("template.rss", "feed.rss")
+
+    with open("feed.rss", "r") as f:
+        rss_feed = xmltodict.parse(f.read())
 
     for key, value in latest.items():
-        if value != old[key]:
+        # turn this to != after testing done
+        if value == old[key]:
             # later ill do some kind of matching so the name looks right
             item = {
                 "title": f"New ISO Release: {key}",
@@ -34,16 +39,10 @@ def send_rss(latest: dict, old: dict):
                 "pubDate": datetime.now(tz=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"),
                 "guid": value
             }
-            items_updated.append(item)
-        
+            rss_feed['rss']['channel']['item'].append(item)
 
-    if os.path.isfile('feed.rss') is False:
-        shutil.copy("template.rss", "feed.rss")
-
-    with open("feed.rss", "r") as f:
-        rss_feed = xmltodict.parse(f.read())
-    
-    print(json.dumps(rss_feed, indent=4))
+    with open("feed.rss", "w") as f:
+        f.write(xmltodict.unparse(rss_feed, pretty=True))
 
 # for now, this will just get new manjaro versions
 # later it will be however many sites I can do
@@ -74,6 +73,6 @@ if manjaro_json != manjaro_entries:
     with open('manjaro.json', 'w') as f:
         json.dump(manjaro_json, f)
     # send a message via rss
-
+# indent below after testing is done
 send_rss(manjaro_json, manjaro_entries)
 
