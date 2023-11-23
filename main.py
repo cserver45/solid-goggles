@@ -2,9 +2,11 @@
 
 """
 import os
+import shutil
 import json
 import bs4
 import requests
+import xmltodict
 
 # for now, this will just get new manjaro versions
 # later it will be however many sites I can do
@@ -35,3 +37,12 @@ if manjaro_json != manjaro_entries:
     with open('manjaro.json', 'w') as f:
         json.dump(manjaro_json, f)
     # send a message via rss (todo)
+
+# rss stuff
+if os.path.isfile('feed.rss') is False:
+    shutil.copy("template.rss", "feed.rss")
+
+with open("feed.rss", "r") as f:
+    rss_feed = xmltodict.parse(f.read())
+    print(json.dumps(rss_feed, indent=4))
+

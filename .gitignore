@@ -161,3 +161,7 @@ cython_debug/
 
 # files generted by us
 manjaro.json
+feed.rss
+
+# venv
+venv/
