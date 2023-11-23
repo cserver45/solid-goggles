@@ -2,7 +2,7 @@
 
 """
 import os
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 import shutil
 import json
 import bs4
@@ -31,7 +31,7 @@ def send_rss(latest: dict, old: dict):
                 },
                 "link": value,
                 "author": "no-reply@localhost",
-                "pubDate": datetime.now(tz=UTC).strftime("%a, %d %b %Y %H:%M:%S %z"),
+                "pubDate": datetime.now(tz=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"),
                 "guid": value
             }
             items_updated.append(item)
