@@ -2,11 +2,48 @@
 
 """
 import os
+from datetime import datetime, UTC
 import shutil
 import json
 import bs4
 import requests
 import xmltodict
+
+
+def send_rss(latest: dict, old: dict):
+    """Add the entry to the rss file."""
+
+    items_updated = []
+
+    for key, value in latest.items():
+        if value != old[key]:
+            # later ill do some kind of matching so the name looks right
+            item = {
+                "title": f"New ISO Release: {key}",
+                "description": {
+                    "p": {
+                        "a": {
+                            "@href": value,
+                            "#text": "ISO Link"
+                        },
+                        "#text": f"New Release of {key}!"
+                    }
+                },
+                "link": value,
+                "author": "no-reply@localhost",
+                "pubDate": datetime.now(tz=UTC).strftime("%a, %d %b %Y %H:%M:%S %z"),
+                "guid": value
+            }
+            items_updated.append(item)
+        
+
+    if os.path.isfile('feed.rss') is False:
+        shutil.copy("template.rss", "feed.rss")
+
+    with open("feed.rss", "r") as f:
+        rss_feed = xmltodict.parse(f.read())
+    
+    print(json.dumps(rss_feed, indent=4))
 
 # for now, this will just get new manjaro versions
 # later it will be however many sites I can do
@@ -36,13 +73,7 @@ if manjaro_json != manjaro_entries:
     # update the file for the next run
     with open('manjaro.json', 'w') as f:
         json.dump(manjaro_json, f)
-    # send a message via rss (todo)
+    # send a message via rss
 
-# rss stuff
-if os.path.isfile('feed.rss') is False:
-    shutil.copy("template.rss", "feed.rss")
-
-with open("feed.rss", "r") as f:
-    rss_feed = xmltodict.parse(f.read())
-    print(json.dumps(rss_feed, indent=4))
+send_rss(manjaro_json, manjaro_entries)
 
