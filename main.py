@@ -31,7 +31,9 @@ def send_rss(latest: dict, old: dict):
                             "@href": value,
                             "#text": "ISO Link"
                         },
-                        "#text": f"New Release of {key}!"
+                        "p": {
+                            "#text": f"New Release of {key}!"
+                        }
                     }
                 },
                 "link": value,
@@ -39,7 +41,10 @@ def send_rss(latest: dict, old: dict):
                 "pubDate": datetime.now(tz=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"),
                 "guid": value
             }
-            rss_feed['rss']['channel']['item'].append(item)
+            try:
+                rss_feed['rss']['channel']['item'].append(item)
+            except KeyError:
+                rss_feed['rss']['channel']['item'] = [item]
 
     with open("feed.rss", "w") as f:
         f.write(xmltodict.unparse(rss_feed, pretty=True))
