@@ -46,8 +46,9 @@ def send_rss(latest: dict, old: dict):
             except KeyError:
                 rss_feed['rss']['channel']['item'] = [item]
 
+    rss_str = xmltodict.unparse(rss_feed, pretty=True)
     with open("feed.rss", "w") as f:
-        f.write(xmltodict.unparse(rss_feed, pretty=True))
+        f.write(rss_str.replace('<?xml version="1.0" encoding="utf-8"?>\n', ''))
 
 # for now, this will just get new manjaro versions
 # later it will be however many sites I can do
